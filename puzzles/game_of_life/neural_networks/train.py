@@ -25,7 +25,7 @@ def train(model,
           reverse_input_output=False,
           epochs=0,
           verbose=True,
-          write_path=None,
+          writer_path=None,
 ):
     assert 1 <= grid_size <= 25
 
