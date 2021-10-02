@@ -11,6 +11,7 @@ from torch import tensor
 from neural_networks.device import device
 from utils.game import generate_random_board
 from utils.game import life_step
+from torch.utils.tensorboard import SummaryWriter
 
 
 def train(model,
@@ -24,6 +25,7 @@ def train(model,
           reverse_input_output=False,
           epochs=0,
           verbose=True,
+          write_path=None,
 ):
     assert 1 <= grid_size <= 25
 
@@ -34,6 +36,9 @@ def train(model,
     model.load(verbose=verbose).train().unfreeze()  # enable training and dropout
     if verbose: print(model)
 
+    if writer_path:
+      writer = SummaryWriter(writer_path)
+      if verbose: writer.add_graph(model)
     # NOTE: criterion loss function now defined via model.loss()
     # optimizer = optim.RMSprop(model.parameters(), lr=0.01, momentum=0.9)
     optimizer = optim.RMSprop(model.parameters(), lr=lr)
@@ -94,7 +99,8 @@ def train(model,
             # lr_finder.plot() # to inspect the loss-learning rate graph
             # lr_finder.reset() # to reset the model and optimizer to their initial state
 
-            for _ in range(5):  # repeat each dataset 5 times
+            # Will over fit? Changing from 5 to 1
+            for _ in range(1):  # repeat each dataset 5 times
                 optimizer.zero_grad()
                 outputs = model(inputs)
                 loss    = model.loss(outputs, expected, inputs)
@@ -122,6 +128,14 @@ def train(model,
                 board_count += batch_size
                 epoch_time   = time.perf_counter() - epoch_start
 
+            if writer_path:
+                  writer.add_scalar('loss',
+                                    last_loss,
+                                    epoch )
+                  writer.add_scalar('accuracy',
+                                    last_accuracy,
+                                    epoch )     
+               
             # Print statistics after each epoch
             # if board_count % 1_000 == 0:
             if (epoch <= 10) or (epoch <= 100 and epoch % 10 == 0) or epoch % 100 == 0:
@@ -130,6 +144,7 @@ def train(model,
                 loop_loss  = 0
                 loop_acc   = 0
                 loop_count = 0
+            
 
     except (BrokenPipeError, KeyboardInterrupt):
         pass
@@ -142,3 +157,6 @@ def train(model,
         model.save(verbose=verbose)
         atexit.unregister(model.save)   # model now saved, so cancel atexit handler
         # model.eval()                  # disable dropout
+        
+        if writer_path:
+            writer.close()
