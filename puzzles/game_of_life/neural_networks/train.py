@@ -27,7 +27,7 @@ def train(model,
           verbose=True,
           writer_path=None,
 ):
-    assert 1 <= grid_size <= 25
+    assert 1 <= grid_size <= 150
 
     if verbose: print(f'{model.device} Training: {model.__class__.__name__}')
     time_start = time.perf_counter()
