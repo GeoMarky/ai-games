@@ -161,5 +161,4 @@ def train(model,
         if writer_path:
             writer.close()
                     
-                    
-   return epoch_losses, epoch_accuracies 
+    return (epoch_losses, epoch_accuracies) 
