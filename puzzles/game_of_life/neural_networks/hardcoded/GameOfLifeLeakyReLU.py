@@ -37,6 +37,23 @@ class GameOfLifeLeakyReLU(GameOfLifeHardcoded):
         self.activation = nn.LeakyReLU()
 
 
+
+    def forward(self, x):
+        x = input = self.cast_inputs(x)
+
+        x = self.input(x)     # noop - a single node linear layer - torch needs at least one trainable layer
+        x = self.counter(x)   # counter counts above 6, so no ReLU6
+
+        for logic in self.logics:
+            x = logic(x)
+            x = self.activation(x)
+
+        x = self.output(x)
+        x = torch.sigmoid(x) # MAR we want a sigmoid to facilitate gradient
+        #x = ReLU1()(x)  # we actually want a ReLU1 activation for binary outputs
+
+        return x
+
     @property
     def filename(self) -> str:
         if os.environ.get('KAGGLE_KERNEL_RUN_TYPE'):
