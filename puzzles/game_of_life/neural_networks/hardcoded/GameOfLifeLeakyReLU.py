@@ -4,7 +4,7 @@ import torch.nn as nn
 from neural_networks.hardcoded.GameOfLifeHardcoded import GameOfLifeHardcoded
 
 
-class GameOfLifeHardcodedLeakyReLU(GameOfLifeHardcoded):
+class GameOfLifeLeakyReLU(GameOfLifeHardcoded):
     """
     LeakyReLU can see in both directions, thus can (sometimes) solve both the logic and output layers
     ReLU1 and tanh has problems with this, however the LeakyReLU solution is less easy for a human to understand
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     from neural_networks.train import train
     import numpy as np
 
-    model = GameOfLifeHardcodedLeakyReLU()
+    model = GameOfLifeLeakyReLU()
 
     board = np.array([
         [0,0,0,0,0],
