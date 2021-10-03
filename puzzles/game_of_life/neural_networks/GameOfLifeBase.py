@@ -129,6 +129,7 @@ class GameOfLifeBase(nn.Module, metaclass=ABCMeta):
                 if verbose: print(f'{self.__class__.__name__}.load(): {self.filename} = {humanize.naturalsize(os.path.getsize(self.filename))}')
             except Exception as exception:
                 # Ignore errors caused by model size mismatch
+                if verbose: print(f'{self.__class__.__name__}.load(): model.load throws exception {exception}\n')
                 if verbose: print(f'{self.__class__.__name__}.load(): model has changed dimensions, reinitializing weights\n')
                 self.apply(self.weights_init)
         else:
