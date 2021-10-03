@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import os
+import humanize
 
 from neural_networks.hardcoded.GameOfLifeHardcoded import GameOfLifeHardcoded
 
