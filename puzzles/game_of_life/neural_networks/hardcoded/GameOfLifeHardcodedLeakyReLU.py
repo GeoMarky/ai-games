@@ -42,6 +42,22 @@ class GameOfLifeHardcodedLeakyReLU(GameOfLifeHardcoded):
         self.output  = nn.Conv2d(in_channels=2, out_channels=1, kernel_size=(1,1))
         self.activation = nn.LeakyReLU()
 
+        
+    def forward(self, x):
+        x = input = self.cast_inputs(x)
+
+        x = self.input(x)     # noop - a single node linear layer - torch needs at least one trainable layer
+        x = self.counter(x)   # counter counts above 6, so no ReLU6
+
+        for logic in self.logics:
+            x = logic(x)
+            x = self.activation(x)
+
+        x = self.output(x)
+        x = torch.sigmoid(x) # MAR we want a sigmoid to facilitate gradient
+        #x = ReLU1()(x)  # we actually want a ReLU1 activation for binary outputs
+
+        return x
 
     def load(self, **kwargs):
         super().load()
@@ -58,6 +74,22 @@ class GameOfLifeHardcodedLeakyReLU(GameOfLifeHardcoded):
         ])
 
         self.logics[0].weight.data = torch.tensor([
+            [ [[   -0.002864 ]], [[   1.094667  ]] ],
+            [ [[ -17.410564 ]], [[ -14.649882  ]] ],
+        ])
+        self.logics[0].bias.data = torch.tensor([
+            -3.355898,
+            9.621474
+        ])
+
+        # AND == Both sides need to be positive
+        self.output.weight.data = torch.tensor([
+            [ [[ -3.801134]], [[-6.304538 ]] ],
+        ])
+        self.output.bias.data = torch.tensor([ -2.024391 ])  # Either both Alive or both Dead statements must be true
+
+        """
+        self.logics[0].weight.data = torch.tensor([
             [ [[   0.2 ]], [[   1.0  ]] ],
             [ [[ -17.9 ]], [[ -15.1  ]] ],
         ])
@@ -71,6 +103,7 @@ class GameOfLifeHardcodedLeakyReLU(GameOfLifeHardcoded):
             [ [[-4.0 ]], [[-6.5 ]] ],
         ])
         self.output.bias.data = torch.tensor([ -1.8 ])  # Either both Alive or both Dead statements must be true
+        """
 
         self.to(self.device)
         return self
